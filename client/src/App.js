@@ -1,0 +1,185 @@
+// App.js
+import React from "react";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
+
+import Home from "./pages/Home";
+import ProblemPage from "./pages/ProblemPage";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import MySubmissions from "./pages/MySubmissions";
+import Profile from "./pages/Profile";
+import LandingPage from "./LandingPage";
+import SimpleCodeEditor from "./components/SimpleCodeEditor";
+
+import EditorPage from "./pages/EditorPage";
+import CollabEditorLobby from "./pages/CollabEditorLobby";
+
+import ContestsList from "./pages/ContestsList";
+import ContestPage from "./pages/ContestPage";
+import CreateContestPage from "./pages/CreateContestPage";
+
+import DuelPage from "./pages/DuelPage";
+import DuelRoomPage from "./pages/DuelRoomPage";
+
+import TeamsPage from "./pages/TeamsPage";
+import TeamBattlePage from "./pages/TeamBattlePage";
+import TeamBattleRoomPage from "./pages/TeamBattleRoomPage";
+
+import { useAuth } from "./context/AuthContext";
+import LeaderboardPage from "./pages/LeaderboardPage";
+
+// 👉 add this
+import About from "./pages/About";
+
+function App() {
+  const { user, logout } = useAuth();
+  const location = useLocation();
+
+  const isLanding = location.pathname === "/";
+  const isSimpleEditor = location.pathname === "/simple-editor";
+
+  const navLinkClass = (path) => {
+    const current = location.pathname;
+    const isActive =
+      current === path || (path !== "/" && current.startsWith(path));
+    return "nav-link" + (isActive ? " active" : "");
+  };
+
+  return (
+    <div
+      style={{
+        padding: isLanding ? 0 : "20px",
+        fontFamily: "sans-serif",
+      }}
+    >
+      {!isLanding && (
+        <nav className="navbar-main">
+          <div className="navbar-left">
+            <Link to="/" className="navbar-logo">
+              CodeGen4Future
+            </Link>
+          </div>
+
+          <div className="navbar-right">
+            {!isSimpleEditor && (
+              <>
+                {/* 👉 new About link in main navbar */}
+                <Link to="/about" className={navLinkClass("/about")}>
+                  About
+                </Link>
+
+                <Link to="/problems" className={navLinkClass("/problems")}>
+                  Problems
+                </Link>
+                <Link to="/contests" className={navLinkClass("/contests")}>
+                  Contests
+                </Link>
+                <Link to="/duel" className={navLinkClass("/duel")}>
+                  1v1 Duel
+                </Link>
+                <Link to="/teams" className={navLinkClass("/teams")}>
+                  Teams
+                </Link>
+                <Link
+                  to="/team-battle"
+                  className={navLinkClass("/team-battle")}
+                >
+                  Team Battle
+                </Link>
+                <Link
+                  to="/simple-editor"
+                  className={navLinkClass("/simple-editor")}
+                >
+                  Simple Editor
+                </Link>
+              </>
+            )}
+
+            {user ? (
+              <>
+                <Link
+                  to="/submissions"
+                  className={navLinkClass("/submissions")}
+                >
+                  My Submissions
+                </Link>
+                <Link to="/profile" className={navLinkClass("/profile")}>
+                  Profile
+                </Link>
+                <span className="user-text">
+                  Hi, {user.username || user.email}
+                </span>
+                <button className="btn-logout" onClick={logout}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className={navLinkClass("/login")}>
+                  Login
+                </Link>
+                <Link to="/register" className={navLinkClass("/register")}>
+                  Register
+                </Link>
+              </>
+            )}
+          </div>
+        </nav>
+      )}
+
+      <Routes>
+        {/* Landing */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* 👉 About page route */}
+        <Route path="/about" element={<About />} />
+
+        {/* Problems */}
+        <Route path="/problems" element={<Home />} />
+        <Route path="/problems/:slug" element={<ProblemPage />} />
+        <Route
+          path="/contests/:contestId/problems/:slug"
+          element={<ProblemPage />}
+        />
+
+        {/* Simple editor */}
+        <Route path="/simple-editor" element={<SimpleCodeEditor />} />
+
+        {/* Collaborative editor lobby + rooms */}
+        <Route path="/collab-editor" element={<CollabEditorLobby />} />
+        {/* Collaborative editor (room-based) */}
+        <Route path="/collab-editor/:roomId" element={<EditorPage />} />
+
+        {/* Auth */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* User */}
+        <Route path="/submissions" element={<MySubmissions />} />
+        <Route path="/profile" element={<Profile />} />
+
+        {/* Contests */}
+        <Route path="/contests" element={<ContestsList />} />
+        <Route path="/contests/new" element={<CreateContestPage />} />
+        <Route path="/contests/:id" element={<ContestPage />} />
+
+        {/* 1v1 Duel */}
+        <Route path="/duel" element={<DuelPage />} />
+        <Route path="/duel-room/:roomId" element={<DuelRoomPage />} />
+
+        {/* Teams & Team Battle */}
+        <Route path="/teams" element={<TeamsPage />} />
+        <Route path="/team-battle" element={<TeamBattlePage />} />
+        <Route
+          path="/team-battles/:battleId"
+          element={<TeamBattleRoomPage />}
+        />
+
+        {/* Leaderboard */}
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
+      </Routes>
+    </div>
+  );
+}
+
+export default App;
